@@ -1,0 +1,110 @@
+body {
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    align-items: center;
+    justify-content: center;
+}
+
+nav {
+    position: sticky;
+    top: 0;
+    padding: 0px;
+	margin: 0px;
+    background-color: #376DBF;
+    height: 60px;
+    width: 100%;
+    flex-grow: 0;
+    display: flex;
+    align-items: center;
+}
+
+ul {
+    color: white;
+    display: flex;
+    padding: 0em 2em 0em 2em;
+    width: 100%;
+    height: 50px;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+    list-style-type: none;
+}
+
+li {
+    align-items: center;
+    padding-left: 2em;
+
+    font-weight: 500;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+li:first-of-type {
+    padding-left: 0em;
+
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.icon-placeholder {
+    height: 60px;
+    width: 60px;
+    fill: white;
+    stroke: #c4c4c4;
+    stroke-width: 1;
+    display: inline-block;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page {
+    margin-left: 5%;
+    margin-right: 3%;
+    max-width: 60%;
+    height: 100%;
+    background-color: white;
+    overflow: auto;
+    padding: 50px;
+    padding-top: 100px;
+}
+
+.card-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex-grow: 1;
+    flex: 1 1 auto;
+    min-height: 200px;
+    min-width: 200px;
+    margin: 5px;
+    background-color: #f3f3f3;
+}
+
+
+
+
+
+
+.county-dropdown {
+    color: #376DBF;
+    margin-right: 5%;
+    height: 600px;
+    width: 20%;
+    background-color: white;
+}

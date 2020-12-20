@@ -1,0 +1,154 @@
+<svg class="cases-map" viewBox="0 -20 975 550"></svg>
+<div class="tooltip"></div>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://d3js.org/topojson.v2.min.js"></script>
+
+<script>
+  const zoom = d3.zoom().scaleExtent([1, 4]).on("zoom", zoomed);
+
+  function initialize_map(mdcases) {
+    d3.json("/shapefiles/mdcounties.json").then(function (maryland) {
+      console.log(maryland);
+
+      const projection = d3
+        .geoAlbersUsa()
+        .fitSize(
+          [width, height],
+          topojson.feature(maryland, maryland.objects.Maryland_Counties)
+        );
+
+      const path = d3.geoPath().projection(projection);
+
+      const g = svg.append("g");
+
+      const map = g.append("g")
+        .attr("cursor", "pointer")
+        .attr("stroke", "grey")
+        .attr("stroke-width", 0.75)
+        .selectAll("path")
+        .data(topojson.feature(maryland, maryland.objects.Maryland_Counties).features)
+        .join("path")
+        // .attr("fill", (d) => fillColor(mdcases.get(d.properties.FIPS)))
+        .attr("fill", "lightblue")
+        .on("click", clicked)
+        .attr("d", path)
+        .on("mouseover", function (d) {
+          d3.select(this).attr("stroke", "black").attr("stroke-width", 3).raise();
+          tooltip.style("display", "block");
+          let node = tooltip.node();
+          console.log(d, mdcases);
+          node.innerHTML = tooltipContent(d, mdcases);
+        })
+        .on("mousemove", function () {
+          const rootBounds = svg.node().getBoundingClientRect();
+          const mouseX = event.pageX - rootBounds.left;
+          const mouseY = event.pageY - rootBounds.top;
+          tooltip
+            .style(
+              "top",
+              Math.min(mouseY - 10, svg.node().offsetHeight - 135) + "px"
+            )
+            .style(
+              "left",
+              (mouseX + 155 <= svg.node().offsetWidth ? mouseX + 10 : mouseX - 155) +
+              "px"
+            )
+            .style("display", "block");
+        })
+        .on("mouseout", function () {
+          d3.select(this).attr("stroke", null).attr("stroke-width", 1).lower();
+          tooltip.style("display", "none");
+        });
+    });
+  }
+
+  d3.csv("https://raw.githubusercontent.com/prayaggordy/D3-covid-map/master/data/md_counties_today.csv",
+
+    ({ fips, cases_per_100k }) => {
+      return [fips, { cases: +cases_per_100k }];
+    }
+  ).then(data => {
+    mdcases = Object.assign(
+      new Map(
+        data
+      ),
+      { title: "State Predictions" }
+    );
+    initialize_map(mdcases);
+  })
+
+  const width = 975;
+  const height = 550;
+
+  const fillColor = d3.scaleLinear()
+    .domain([0, 0.5, 1])
+    .range(["#EF3D3D", "#e6e6e6", "#1B6CE5"]);
+
+  const svg = d3.select("svg");
+
+  function reset() {
+    svg.transition().duration(750).call(
+      zoom.transform,
+      d3.zoomIdentity,
+      d3.zoomTransform(svg.node()).invert([width / 2, height / 2])
+    );
+  }
+
+  function clicked(d) {
+    const [[x0, y0], [x1, y1]] = path.bounds(d);
+    d3.event.stopPropagation();
+    svg.transition().duration(750).call(
+      zoom.transform,
+      d3.zoomIdentity
+        .translate(width / 2, height / 2)
+        .scale(Math.min(3, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
+        .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+      d3.mouse(svg.node())
+    );
+  }
+
+  function zoomed() {
+    const { transform } = d3.event;
+    g.attr("transform", transform);
+    g.attr("stroke-width", 1 / transform.k);
+  }
+
+  function getlowestfraction(x0) {
+    var eps = 0.01;
+    var h, h1, h2, k, k1, k2, a, x;
+
+    x = x0;
+    a = Math.floor(x);
+    h1 = 1;
+    k1 = 0;
+    h = a;
+    k = 1;
+
+    while (x - a > eps * k * k) {
+      x = 1 / (x - a);
+      a = Math.floor(x);
+      h2 = h1;
+      h1 = h;
+      k2 = k1;
+      k1 = k;
+      h = h2 + a * h1;
+      k = k2 + a * k1;
+    }
+
+    return h + " in " + k + " residents";
+  }
+
+  const tooltip = d3.select("div.tooltip");
+  const tooltipContent = (d, mdcases) => {
+    return `
+<div class = "container">
+  <div class = "county"> ${d.properties.NAME} </div>
+  
+  <div class = "totalCases">
+    <div class = "caseTotal"> Cases per 100,000: <br> ${d3.format(",.0f")(mdcases.get(d.properties.FIPS))}</div>
+    <div class = "cases"> ${getlowestfraction(mdcases.get(d.properties.FIPS) / 100000)} </div>
+  </div>
+</div> 
+`};
+</script>

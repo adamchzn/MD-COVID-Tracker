@@ -97,10 +97,10 @@ md_counties_pos <- md_api("https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/r
 	inner_join(md_fips, by = "county") %>%
 	select(date = report_date, county, fips, pos = percentpositive, pos_avg = rollingavg)
 
-md_counties <- inner_join(md_counties_cases, md_counties_deaths, by = c("county", "date", "fips")) %>%
-	inner_join(md_counties_volume, by = c("county", "date", "fips")) %>%
-	inner_join(md_counties_pos, by = c("county", "date", "fips")) %>%
-	inner_join(md_counties_hospit, by = c("county", "date", "fips"))
+md_counties <- left_join(md_counties_cases, md_counties_deaths, by = c("county", "date", "fips")) %>%
+	left_join(md_counties_volume, by = c("county", "date", "fips")) %>%
+	left_join(md_counties_pos, by = c("county", "date", "fips")) %>%
+	left_join(md_counties_hospit, by = c("county", "date", "fips"))
 
 # ZIP
 
@@ -176,6 +176,6 @@ md_statewide <- full_join(md_hospit, md_volume, by = "date") %>%
 save_dfs <- function(df)
 	write_csv(get(df), paste0("../data/", df, ".csv"))
 
-dfs <- c("md_counties_cases", "md_counties_deaths", "md_counties_prob_deaths", "md_counties", "md_counties_today", "md_zips", "md_zips_today", "age_data", "sex_data", "race_data", "hospit_data", "md_negatives", "md_isolation", "md_volume", "md_ever_hospit", "md_statewide", "md_population_tested_county", "md_population_tested_county_today", "md_daily_volume_tested_county", "md_counties_pos", "md_counties_today_table", "md_counties_trend_table", "card_values")
+dfs <- c("md_counties", "md_zips", "age_data", "race_data", "md_statewide")
 
 lapply(dfs, save_dfs)

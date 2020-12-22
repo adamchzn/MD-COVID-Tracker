@@ -2,6 +2,9 @@ easypackages::libraries("tidyverse", "jsonify", "janitor", "zoo", "scales", "htm
 
 pop_county <- read_csv("population/county.csv")
 pop_zip <- read_csv("population/zip.csv")
+md_fips <- read_csv("md_fips.csv")
+zip_crosswalk <- read_csv("zip_crosswalk.csv") %>%
+	mutate(zip = as.character(zip))
 
 md_counties_hospit <- read_csv("../data/md_hospit_county.csv") %>%
 	select(county, fips, collection_week, inpatient_percent_occupied, icu_percent_occupied) %>%
@@ -42,8 +45,6 @@ md_indicator_combine <- function(cases, deaths, prob_deaths, join_key, uk_text =
 		pivot_longer(cols = -!!rlang::sym(join_key), names_to = "variable") %>%
 		mutate(variable = recode(variable, "cases" = "Confirmed cases", "deaths" = "Confirmed deaths", "prob_deaths" = "Probable deaths"))
 }
-
-md_fips <- read_csv("md_fips.csv")
 
 # COUNTY
 
@@ -110,8 +111,9 @@ md_zips <- md_api("https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/rest/serv
 	group_by(zip) %>%
 	mutate(new_cases = pmax(cases - lag(cases), 0)) %>%
 	ungroup() %>%
-	inner_join(pop_zip) %>%
-	mutate(cases_per_100k = cases/population*100000)
+	inner_join(pop_zip, by = "zip") %>%
+	mutate(cases_per_100k = cases/population*100000) %>%
+	left_join(zip_crosswalk, by = "zip")
 
 # AGE
 

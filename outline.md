@@ -16,8 +16,8 @@
 **Overall**, we need these data bases which we can filter:
 
 * County: cases, new cases (7-day rolling average), new cases per 100k (7-day rolling average); deaths, new deaths; tests, new tests (7-day rolling average); hospital capacity percentage; positivity rate (7-day rolling average)
-* Zip: cases, new cases (7-day rolling average), new cases per 100k
-* Statewide: current hospitalizations (7-day rolling average), cumulative hospitalizations; positivity rate (7-day rolling average); tests, new tests (7-day rolling average)
+* Zip: cases, new cases (7-day rolling average), new cases per 100k, county
+* Statewide: current hospitalizations (7-day rolling average); positivity rate (7-day rolling average); tests, new tests (7-day rolling average)
 * Facilities: cases, deaths, county
 * Race: cases, deaths, population
 * Age: cases, deaths, population

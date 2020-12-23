@@ -20,56 +20,56 @@ filter_data = DataStore()
 
 
 @app.route("/main", methods=["GET", "POST"])
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
 def homepage():
     chosen_county = request.form.get('county', 'Montgomery')
-    filter_data.chosen_county = county_name_crosswalk[county_name_crosswalk.County == chosen_county].fips
+    filter_data.chosen_county = county_name_crosswalk[county_name_crosswalk.County == chosen_county].fips.values[0]
 
-    county = jsonify(county_data[county_data.fips == filter_data.chosen_county])
-    zips = jsonify(zip_data[zip_data.fips == filter_data.chosen_county])
+    county = county_data[county_data.fips == filter_data.chosen_county]
+    zips = zip_data[zip_data.fips == filter_data.chosen_county]
 
     filter_data.county_data = county
     filter_data.zip_data = zips
 
-    return render_template("index.html", county=county, zips=zips)
+    return render_template("index.html", chosen_county=chosen_county, county=county, zips=zips)
 
 
 @app.route("/county", methods=["GET", "POST"])
 def return_county():
-    return jsonify(county_data)
+    return (county_data)
 
 
 @app.route("/zip", methods=["GET", "POST"])
 def return_zip():
-    return jsonify(zip_data)
+    return (zip_data)
 
 
 @app.route("/county-filtered", methods=["GET", "POST"])
-def return_county():
+def return_county_filtered():
     return filter_data.county_data
 
 
 @app.route("/zip-filtered", methods=["GET", "POST"])
-def return_zip():
+def return_zip_filtered():
     return filter_data.zip_data
 
 
 @app.route("/statewide", methods=["GET", "POST"])
 def return_statewide():
     data = pd.read_csv("../data/md_statewide.csv")
-    return jsonify(data)
+    return (data)
 
 
 @app.route("/age", methods=["GET", "POST"])
 def return_age():
     data = pd.read_csv("../data/md_age.csv")
-    return jsonify(data)
+    return (data)
 
 
 @app.route("/race", methods=["GET", "POST"])
 def return_race():
     data = pd.read_csv("../data/md_race.csv")
-    return jsonify(data)
+    return (data)
 
 
 if __name__ == '__main__':

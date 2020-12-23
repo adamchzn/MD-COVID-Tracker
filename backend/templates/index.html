@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Testing backend</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+
+<form method="post" onSubmit="showCountry()">
+    <input name="county" id="county_filter" placeholder="Select a county">
+    <input type="submit" value="Submit">
+</form>
+
+<body>
+
+<p>Selected county: {{ chosen_county }}</p>
+<div id="testGraph">
+    <p>Read in data, then make a graph</p>
+</div>
+
+</body>
+</html>

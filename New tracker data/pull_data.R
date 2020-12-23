@@ -16,7 +16,8 @@ md_counties_hospit <- read_csv("../data/md_hospit_county.csv") %>%
 	select(-collection_week) %>%
 	arrange(county, date)
 
-counties_proper_names <- data.frame(County = c("Allegany", "Anne Arundel", "Baltimore County", "Baltimore City", "Calvert", "Caroline", "Carroll", "Cecil", "Charles", "Dorchester", "Frederick", "Garrett", "Harford", "Howard", "Kent", "Montgomery", "Prince George's", "Queen Anne's", "Somerset", "St. Mary's", "Talbot", "Washington", "Wicomico", "Worcester"), county = md_counties_today$county)
+counties_proper_names <- data.frame(County = c("Allegany", "Anne Arundel", "Baltimore County", "Baltimore City", "Calvert", "Caroline", "Carroll", "Cecil", "Charles", "Dorchester", "Frederick", "Garrett", "Harford", "Howard", "Kent", "Montgomery", "Prince George's", "Queen Anne's", "Somerset", "St. Mary's", "Talbot", "Washington", "Wicomico", "Worcester")) %>%
+	bind_cols(drop_na(md_fips))
 
 md_api <- function(api_url) {
 	suppressWarnings(from_json(api_url)[["features"]]$attributes) %>%
@@ -178,6 +179,6 @@ md_statewide <- full_join(md_hospit, md_volume, by = "date") %>%
 save_dfs <- function(df)
 	write_csv(get(df), paste0("../data/", df, ".csv"))
 
-dfs <- c("md_counties", "md_zips", "age_data", "race_data", "md_statewide")
+dfs <- c("md_counties", "md_zips", "age_data", "race_data", "md_statewide", "counties_proper_names")
 
 lapply(dfs, save_dfs)

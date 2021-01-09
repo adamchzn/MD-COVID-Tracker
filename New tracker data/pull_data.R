@@ -173,7 +173,30 @@ md_volume <- md_api("https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/rest/se
 				 total_tests = cumsum(number_of_tests)) %>%
 	select(date, new_tests = number_of_tests, new_tests_avg, total_tests, positives = number_of_positives, pos, pos_avg)
 
+md_statewide_cases <- md_api("https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/rest/services/MDCOVID19_TotalCasesStatewide/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json") %>%
+	select(date, cases = count) %>%
+	mutate(date = seq.Date(as.Date("2020-03-04"), as.Date("2020-03-04") + n() - 1, by = "day"),
+				 new_cases = cases - lag(cases),
+				 avg_new_cases = rollmeanr(new_cases, 7, NA))
+
+md_statewide_conf_deaths <- md_api("https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/rest/services/MDCOVID19_TotalConfirmedDeathsStatewide/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json") %>%
+	select(date, conf_deaths = count) %>%
+	mutate(date = seq.Date(as.Date("2020-03-18"), as.Date("2020-03-18") + n() - 1, by = "day"))
+
+md_statewide_prob_deaths <- md_api("https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/rest/services/MDCOVID19_TotalProbableDeathsByDateOfDeath/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json") %>%
+	select(date, prob_deaths = count) %>%
+	mutate(date = seq.Date(as.Date("2020-03-29"), as.Date("2020-03-29") + n() - 1, by = "day"))
+
+md_statewide_deaths <- left_join(md_statewide_conf_deaths, md_statewide_prob_deaths, by = "date") %>%
+	mutate(prob_deaths = replace_na(prob_deaths, 0),
+				 deaths = conf_deaths + prob_deaths,
+				 new_deaths = deaths - lag(deaths),
+				 avg_new_deaths = rollmeanr(new_deaths, 7, NA)) %>%
+	select(date, deaths, new_deaths, avg_new_deaths)
+
 md_statewide <- full_join(md_hospit, md_volume, by = "date") %>%
+	full_join(md_statewide_cases, by = "date") %>%
+	full_join(md_statewide_deaths, by = "date") %>%
 	arrange(date)
 
 save_dfs <- function(df)
